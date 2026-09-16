@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="sv">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="description" content="Internt säljstöd för produktjämförelser och uppsälj av vitvaror.">
+  <title>Tretti Sales Compare</title>
+  <link rel="stylesheet" href="./assets/styles.css">
+</head>
+<body>
+<header class="topbar">
+  <div class="topbar-inner">
+    <div class="brand-lockup">
+      <div class="brand-mark">T<span></span></div>
+      <div><div class="brand-name">Tretti Sales Compare</div><div class="brand-caption">Internt säljstöd</div></div>
+    </div>
+    <button class="btn btn-secondary btn-small" id="adminOpen">Produktdata</button>
+  </div>
+</header>
+
+<div class="shell official-shell">
+  <header class="hero">
+    <div>
+      <h1>Jämför. Förklara värdet. Sälj rätt produkt.</h1>
+      <p>Jämför kundens val med ett eller två alternativ. Verktyget prioriterar skillnader som kunden faktiskt märker i vardagen och omvandlar dem till konkreta säljargument.</p>
+    </div>
+    <span class="pill success-pill">● 0 kr per cachad jämförelse</span>
+  </header>
+
+  <section class="card">
+    <div class="toolbar">
+      <button class="btn btn-secondary btn-small" id="demo">Ladda testdata</button>
+      <span id="backendStatus" class="backend-status"></span>
+    </div>
+
+    <div class="input-grid">
+      <div class="product-input">
+        <div class="input-title"><h3>Kundens produkt</h3><span>UTGÅNGSLÄGE</span></div>
+        <label for="baseModel">Modellnummer</label><input id="baseModel" autocomplete="off" placeholder="t.ex. COPP20B">
+        <label for="basePrice">Kundpris (kr)</label><input id="basePrice" type="number" min="0" placeholder="6790">
+      </div>
+      <div class="product-input upsell-input">
+        <div class="input-title"><h3>Uppsälj 1</h3><span>PRIMÄRT</span></div>
+        <label for="up1Model">Modellnummer</label><input id="up1Model" autocomplete="off" placeholder="t.ex. COP802B">
+        <label for="up1Price">Pris (kr)</label><input id="up1Price" type="number" min="0" placeholder="6790">
+      </div>
+      <div class="product-input upsell-input">
+        <div class="input-title"><h3>Uppsälj 2</h3><span>VALFRITT</span></div>
+        <label for="up2Model">Modellnummer</label><input id="up2Model" autocomplete="off" placeholder="Lämna tomt om det inte behövs">
+        <label for="up2Price">Pris (kr)</label><input id="up2Price" type="number" min="0" placeholder="6990">
+      </div>
+    </div>
+
+    <div class="actions">
+      <button class="btn btn-primary" id="run">Analysera produkter</button>
+      <span id="status" class="status"></span>
+    </div>
+    <div id="msg" class="notice hidden"></div>
+
+    <div id="missing" class="missing-box hidden">
+      <h4>Produkt saknas i produktcachen</h4>
+      <p>Modell(er): <b id="missingModels"></b>. Om live-cachen är aktiverad kan verktyget försöka hämta exakt produktdata. Direkta leverantörs- eller Tretti-länkar ger säkrast resultat.</p>
+      <label for="sourceUrls">Produktlänkar, en per rad (valfritt)</label>
+      <textarea id="sourceUrls" rows="4" placeholder="https://leverantor.se/produkt/...&#10;https://www.tretti.se/..."></textarea>
+      <div class="actions"><button class="btn btn-accent" id="refresh">Hämta och cacha produkt</button><span id="refreshStatus" class="status"></span></div>
+    </div>
+  </section>
+
+  <main id="results" class="results hidden">
+    <section class="card"><div class="section-header"><div><h2 class="section-title">Överblick</h2><p>Prissteg och produktdata.</p></div></div><div id="overview" class="overview"></div></section>
+    <section class="card"><div class="section-header"><div><h2 class="section-title">Bästa sättet att sälja upp</h2><p>Starkaste vardagsfördelarna prioriteras.</p></div></div><div id="comparisons" class="compare-grid"></div></section>
+    <section class="card"><div class="section-header"><div><h2 class="section-title">Färdig säljpitch</h2><p>Formulerad för telefon eller chatt.</p></div><button id="copyPitch" class="btn btn-secondary btn-small">Kopiera pitch</button></div><div id="pitches"></div></section>
+    <section class="card"><div class="section-header"><div><h2 class="section-title">Specifikationer</h2><p>Exakt vilka värden som jämfördes.</p></div></div><div style="overflow:auto" id="factTable"></div></section>
+    <section class="card"><div class="section-header"><div><h2 class="section-title">Källor och tillförlitlighet</h2><p>Tillverkare prioriteras före Tretti, därefter andra återförsäljare.</p></div></div><div id="sources" class="source-list"></div></section>
+  </main>
+
+  <div class="footer">Internt säljstöd · Verifiera alltid källan när en specifikation är avgörande för köpbeslutet.</div>
+</div>
+
+<div id="adminOverlay" class="drawer-overlay hidden"></div>
+<aside id="adminDrawer" class="admin-drawer hidden">
+  <div class="drawer-head"><div><h2>Produktdata</h2><p>Lokala produkter, cache och backup.</p></div><button id="adminClose" class="btn btn-secondary btn-small">Stäng</button></div>
+  <div class="admin-kpis"><div><b id="dbCount">0</b><span>Produkter</span></div><div><b id="localCount">0</b><span>Lokala</span></div><div><b id="workerState">Av</b><span>Live-cache</span></div></div>
+  <div class="admin-section">
+    <h3>Lägg till verifierad produkt</h3>
+    <p>För leverantörer som blockerar automatisk hämtning.</p>
+    <label>Modellnummer</label><input id="manualModel" placeholder="Modellnummer">
+    <label>Varumärke</label><input id="manualBrand" placeholder="Varumärke">
+    <label>Produktnamn</label><input id="manualName" placeholder="Produktnamn">
+    <label>Specifikationer (JSON)</label><textarea id="manualFacts" rows="8" placeholder='{"noiseDb":42,"autoDose":true,"energyClass":"B"}'></textarea>
+    <label>Källa</label><input id="manualSource" placeholder="https://...">
+    <div class="actions"><button id="manualSave" class="btn btn-primary">Spara produkt</button><span id="adminMsg" class="status"></span></div>
+  </div>
+  <div class="admin-section">
+    <h3>Databas</h3>
+    <p>Exportera produktdata för backup eller importera en gemensam produktbas.</p>
+    <div class="actions">
+      <button id="dbExport" class="btn btn-secondary">Exportera JSON</button>
+      <label class="btn btn-secondary import-label">Importera JSON<input id="dbImport" type="file" accept=".json,application/json" hidden></label>
+      <button id="cacheClear" class="btn btn-danger">Rensa lokal cache</button>
+    </div>
+  </div>
+</aside>
+<script src="./config.js"></script>
+<script src="./data/products.js"></script>
+<script src="./assets/app.js"></script>
+</body>
+</html>
